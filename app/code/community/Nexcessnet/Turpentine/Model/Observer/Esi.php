@@ -532,7 +532,13 @@ class Nexcessnet_Turpentine_Model_Observer_Esi extends Varien_Event_Observer {
         if (Mage::helper('turpentine/data')->getVclFix() == 0 && $observer->getEvent()->getControllerAction()->getFullActionName() == 'checkout_cart_add') {
             Mage::dispatchEvent("add_to_cart_before", array('request' => $observer->getControllerAction()->getRequest()));
         }
-        if ($observer->getEvent()->getControllerAction()->getFullActionName() == 'wishlist_index_index') {
+        $wishlistActions = array(
+            'wishlist_index_index',
+            'wishlist_index_add',
+            'wishlist_index_update',
+            'wishlist_index_remove',
+        );
+        if (in_array($observer->getEvent()->getControllerAction()->getFullActionName(), $wishlistActions)) {
             Mage::dispatchEvent('wishlist_index_index_before', array('request' => $observer->getControllerAction()->getRequest()));
         }
     }
