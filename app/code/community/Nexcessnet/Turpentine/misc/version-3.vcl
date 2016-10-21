@@ -28,6 +28,10 @@ C{
 
 import std;
 
+## Custom VCL Logic - Top
+
+{{custom_vcl_include_top}}
+
 ## Backends
 
 {{default_backend}}
@@ -441,7 +445,7 @@ sub vcl_deliver {
     }
 }
 
-## Custom VCL Logic
+## Custom VCL Logic - Bottom
 
 {{custom_vcl_include}}
 
