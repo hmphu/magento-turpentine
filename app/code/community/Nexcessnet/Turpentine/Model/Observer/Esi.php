@@ -538,17 +538,26 @@ class Nexcessnet_Turpentine_Model_Observer_Esi extends Varien_Event_Observer {
     }
 
     public function hookToControllerActionPreDispatch($observer) {
-        if (Mage::helper('turpentine/data')->getVclFix() == 0 && $observer->getEvent()->getControllerAction()->getFullActionName() == 'checkout_cart_add') {
-            Mage::dispatchEvent("add_to_cart_before", array('request' => $observer->getControllerAction()->getRequest()));
+        $request = $observer->getControllerAction()->getRequest();
+        $params = $request->getParams();
+        
+        if(array_key_exists('form_key', $params)){
+            $key = Mage::getSingleton('core/session')->getFormKey();
+            $request->setParam('form_key', $key);
         }
-        $wishlistActions = array(
-            'wishlist_index_index',
-            'wishlist_index_add',
-            'wishlist_index_update',
-            'wishlist_index_remove',
-        );
-        if (in_array($observer->getEvent()->getControllerAction()->getFullActionName(), $wishlistActions)) {
-            Mage::dispatchEvent('wishlist_index_index_before', array('request' => $observer->getControllerAction()->getRequest()));
+        else if (Mage::helper('turpentine/data')->getVclFix() == 0 && $observer->getEvent()->getControllerAction()->getFullActionName() == 'checkout_cart_add') {
+            Mage::dispatchEvent("add_to_cart_before", array('request' => $request));
+        }
+        else{
+            $wishlistActions = array(
+                'wishlist_index_index',
+                'wishlist_index_add',
+                'wishlist_index_update',
+                'wishlist_index_remove',
+            );
+            if (in_array($observer->getEvent()->getControllerAction()->getFullActionName(), $wishlistActions)) {
+                Mage::dispatchEvent('wishlist_index_index_before', array('request' => $request));
+            }
         }
     }
 
