@@ -1044,7 +1044,7 @@ EOS;
 
         foreach (array('','top') as $position) {
             $customIncludeFile = $this->_getCustomIncludeFilename($position);
-        if (is_readable($customIncludeFile)) {
+            if (is_readable($customIncludeFile)) {
                 $key = 'custom_vcl_include';
                 $key .= ($position) ? '_'.$position : '';
                 $vars[$key] = file_get_contents($customIncludeFile);
