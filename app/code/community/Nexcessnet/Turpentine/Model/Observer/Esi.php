@@ -226,12 +226,19 @@ class Nexcessnet_Turpentine_Model_Observer_Esi extends Varien_Event_Observer {
             $debugHelper->logInfo(
                 'Checking ESI block candidate: %s',
                 $blockObject->getNameInLayout() ? $blockObject->getNameInLayout() : $blockObject->getModuleName() );
-        }
+
+            $debugHelper->logInfo( "-- block testing: shouldResponseUseEsi = " . $esiHelper->shouldResponseUseEsi());
+            $debugHelper->logInfo( "-- block testing: instanceof Mage_Core_Block_Template = " . $blockObject instanceof Mage_Core_Block_Template );
+            $debugHelper->logInfo( "-- block testing: Esi Options = " . print_r($blockObject->getEsiOptions(), true) );
+        }        
         if ($esiHelper->shouldResponseUseEsi() &&
                 $blockObject instanceof Mage_Core_Block_Template &&
                 $esiOptions = $blockObject->getEsiOptions()) {
 
             if ((isset($esiOptions['disableEsiInjection'])) && ($esiOptions['disableEsiInjection'] == 1)) { 
+                if ($esiHelper->getEsiBlockLogEnabled()) {
+                    $debugHelper->logInfo("-- ESI Injection disabled");
+                }
                 return;
             }
 
@@ -325,6 +332,8 @@ class Nexcessnet_Turpentine_Model_Observer_Esi extends Varien_Event_Observer {
         $methodParam = $esiHelper->getEsiMethodParam();
         $esiData = new Varien_Object();
         $esiData->setStoreId(Mage::app()->getStore()->getId());
+        $esiData->setDesignPackage( Mage::getDesign()->getPackageName() );
+        $esiData->setDesignTheme( Mage::getDesign()->getTheme( 'layout' ) );
         $esiData->setNameInLayout($blockObject->getNameInLayout());
         $esiData->setBlockType(get_class($blockObject));
         $esiData->setLayoutHandles($this->_getBlockLayoutHandles($blockObject));
@@ -529,11 +538,26 @@ class Nexcessnet_Turpentine_Model_Observer_Esi extends Varien_Event_Observer {
     }
 
     public function hookToControllerActionPreDispatch($observer) {
-        if (Mage::helper('turpentine/data')->getVclFix() == 0 && $observer->getEvent()->getControllerAction()->getFullActionName() == 'checkout_cart_add') {
-            Mage::dispatchEvent("add_to_cart_before", array('request' => $observer->getControllerAction()->getRequest()));
+        $request = $observer->getControllerAction()->getRequest();
+        $params = $request->getParams();
+        
+        if(array_key_exists('form_key', $params)){
+            $key = Mage::getSingleton('core/session')->getFormKey();
+            $request->setParam('form_key', $key);
         }
-        if ($observer->getEvent()->getControllerAction()->getFullActionName() == 'wishlist_index_index') {
-            Mage::dispatchEvent('wishlist_index_index_before', array('request' => $observer->getControllerAction()->getRequest()));
+        else if (Mage::helper('turpentine/data')->getVclFix() == 0 && $observer->getEvent()->getControllerAction()->getFullActionName() == 'checkout_cart_add') {
+            Mage::dispatchEvent("add_to_cart_before", array('request' => $request));
+        }
+        else{
+            $wishlistActions = array(
+                'wishlist_index_index',
+                'wishlist_index_add',
+                'wishlist_index_update',
+                'wishlist_index_remove',
+            );
+            if (in_array($observer->getEvent()->getControllerAction()->getFullActionName(), $wishlistActions)) {
+                Mage::dispatchEvent('wishlist_index_index_before', array('request' => $request));
+            }
         }
     }
 

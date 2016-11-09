@@ -562,15 +562,15 @@ class Nexcessnet_Turpentine_Model_Dummy_Request extends
      * @return null
      */
     public function fakeRouterDispatch() {
-        if ($this->_cmsRouterMatch()) {
-            Mage::helper('turpentine/debug')->logDebug('Matched router: cms');
-        } elseif ($this->_standardRouterMatch()) {
-            Mage::helper('turpentine/debug')->logDebug('Matched router: standard');
-        } elseif ($this->_defaultRouterMatch()) {
-            Mage::helper('turpentine/debug')->logDebug('Matched router: default');
-        } else {
-            Mage::helper('turpentine/debug')->logDebug('No router match');
-        }
+        // if ($this->_cmsRouterMatch()) {
+        //     Mage::helper('turpentine/debug')->logDebug('Matched router: cms');
+        // } elseif ($this->_standardRouterMatch()) {
+        //     Mage::helper('turpentine/debug')->logDebug('Matched router: standard');
+        // } elseif ($this->_defaultRouterMatch()) {
+        //     Mage::helper('turpentine/debug')->logDebug('Matched router: default');
+        // } else {
+        //     Mage::helper('turpentine/debug')->logDebug('No router match');
+        // }
     }
 
     /**
