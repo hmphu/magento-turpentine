@@ -129,6 +129,7 @@ sub vcl_recv {
 
     {{normalize_encoding}}
     {{normalize_user_agent}}
+    {{normalize_device}}
     {{normalize_host}}
 
     # check if the request is for part of magento
@@ -259,6 +260,9 @@ sub vcl_hash {
     hash_data(req.http.Ssl-Offloaded);
     if (req.http.X-Normalized-User-Agent) {
         hash_data(req.http.X-Normalized-User-Agent);
+    }
+    if (req.http.X-UA-Device) {
+        hash_data(req.http.X-UA-Device);
     }
     if (req.http.Accept-Encoding) {
         # make sure we give back the right encoding
@@ -417,6 +421,8 @@ sub vcl_deliver {
         set resp.http.X-Varnish-Esi-Access = req.http.X-Varnish-Esi-Access;
         set resp.http.X-Varnish-Currency = req.http.X-Varnish-Currency;
         set resp.http.X-Varnish-Store = req.http.X-Varnish-Store;
+        set resp.http.X-Normalized-User-Agent = req.http.X-Normalized-User-Agent;
+        set resp.http.X-UA-Device = req.http.X-UA-Device;
     } else {
         # remove Varnish fingerprints
         unset resp.http.X-Varnish;
@@ -430,6 +436,8 @@ sub vcl_deliver {
         unset resp.http.X-Varnish-Session;
         unset resp.http.X-Varnish-Host;
         unset resp.http.X-Varnish-URL;
+        unset resp.http.X-Normalized-User-Agent;
+        unset resp.http.X-UA-Device;
         # this header indicates the session that originally generated a cached
         # page. it *must* not be sent to a client in production with lax
         # session validation or that session can be hijacked
