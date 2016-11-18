@@ -292,6 +292,8 @@ sub vcl_hash {
         set req.hash += regsub(req.http.Cookie, "^.*?customer_group=([^;]*);*.*$", "\1");
     }
 
+    {{custom_cookie_hash}}
+
     return (hash);
 }
 
