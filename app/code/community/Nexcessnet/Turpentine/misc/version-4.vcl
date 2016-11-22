@@ -113,7 +113,9 @@ sub vcl_recv {
 
     # this always needs to be done so it's up at the top
     if (req.restarts == 0) {
-        if (req.http.X-Forwarded-For) {
+        if (req.http.cf-connecting-ip) { #cloudflare
+            set req.http.X-Forwarded-For = req.http.cf-connecting-ip;
+        }elseif (req.http.X-Forwarded-For) {
             set req.http.X-Forwarded-For =
                 req.http.X-Forwarded-For + ", " + client.ip;
         } else {
