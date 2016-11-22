@@ -102,13 +102,6 @@ sub generate_session_expires {
 {{generate_session_end}}
 ## Varnish Subroutines
 
-sub vcl_synth {
-    if (resp.status == 750) {
-        set resp.status = 301;
-        set resp.http.Location = "https://" + req.http.host + req.url;
-        return(deliver);
-    }
-}
 
 sub vcl_init {
     {{directors}}
@@ -121,7 +114,9 @@ sub vcl_recv {
 
     # this always needs to be done so it's up at the top
     if (req.restarts == 0) {
-        if (req.http.X-Forwarded-For) {
+        if (req.http.cf-connecting-ip) { #cloudflare
+            set req.http.X-Forwarded-For = req.http.cf-connecting-ip;
+        }elseif (req.http.X-Forwarded-For) {
             set req.http.X-Forwarded-For =
                 req.http.X-Forwarded-For + ", " + client.ip;
         } else {
